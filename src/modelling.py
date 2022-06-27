@@ -118,3 +118,72 @@ def load_data(dir_list, image_size):
     print(f'y shape is: {y.shape}')
 
     return X, y
+
+
+augmented_path = 'augmented_data/'
+
+# augmented data (yes and no) contains both the original and the new generated examples
+augmented_yes = augmented_path + 'yes'
+augmented_no = augmented_path + 'no'
+
+IMG_WIDTH, IMG_HEIGHT = (240, 240)
+
+X, y = load_data([augmented_yes, augmented_no], (IMG_WIDTH, IMG_HEIGHT))
+
+
+def plot_sample_images(X, y, n=50):
+    """
+    Plots n sample images for both values of y (labels).
+    Arguments:
+        X: A numpy array with shape = (#_examples, image_width, image_height, #_channels)
+        y: A numpy array with shape = (#_examples, 1)
+    """
+
+    for label in [0, 1]:
+        # grab the first n images with the corresponding y values equal to label
+        images = X[np.argwhere(y == label)]
+        n_images = images[:n]
+
+        columns_n = 10
+        rows_n = int(n / columns_n)
+
+        plt.figure(figsize=(20, 10))
+
+        i = 1  # current plot
+        for image in n_images:
+            plt.subplot(rows_n, columns_n, i)
+            plt.imshow(image[0])
+
+            # remove ticks
+            plt.tick_params(axis='both', which='both',
+                            top=False, bottom=False, left=False, right=False,
+                            labelbottom=False, labeltop=False, labelleft=False, labelright=False)
+
+            i += 1
+
+        label_to_str = lambda label: "Yes" if label == 1 else "No"
+        plt.suptitle(f"Brain Tumor: {label_to_str(label)}")
+        plt.show()
+
+
+def split_data(X, y, test_size=0.2):
+    """
+    Splits data into training, development and test sets.
+    Arguments:
+        X: A numpy array with shape = (#_examples, image_width, image_height, #_channels)
+        y: A numpy array with shape = (#_examples, 1)
+    Returns:
+        X_train: A numpy array with shape = (#_train_examples, image_width, image_height, #_channels)
+        y_train: A numpy array with shape = (#_train_examples, 1)
+        X_val: A numpy array with shape = (#_val_examples, image_width, image_height, #_channels)
+        y_val: A numpy array with shape = (#_val_examples, 1)
+        X_test: A numpy array with shape = (#_test_examples, image_width, image_height, #_channels)
+        y_test: A numpy array with shape = (#_test_examples, 1)
+    """
+
+    X_train, X_test_val, y_train, y_test_val = train_test_split(X, y, test_size=test_size)
+    X_test, X_val, y_test, y_val = train_test_split(X_test_val, y_test_val, test_size=0.5)
+
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+
